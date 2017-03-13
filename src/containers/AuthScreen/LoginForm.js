@@ -56,6 +56,7 @@ export default class LoginForm extends Component {
           </Item>
           <Item inlineLabel last>
               <Input 
+                secureTextEntry={true} 
                 style={{color:'#fff'}}
                 placeholder="Mot de passe"
                 onChangeText={password => this.setState({ password })}

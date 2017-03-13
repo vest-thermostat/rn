@@ -73,6 +73,7 @@ export default class SignupForm extends Component {
           </Item>
           <Item inlineLabel last>
               <Input 
+                secureTextEntry={true}
                 style={{color:'#fff'}}
                 placeholder="Mot de passe"
                 onChangeText={password => this.setState({ password })}
@@ -80,6 +81,7 @@ export default class SignupForm extends Component {
           </Item>
           <Item inlineLabel last>
               <Input 
+                secureTextEntry={true}
                 style={{color:'#fff'}}
                 placeholder="Confirmez le mot de passe"
                 onChangeText={confirm_password => this.setState({ confirm_password })}
