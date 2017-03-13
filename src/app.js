@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { AsyncStorage } from 'react-native'
 import axios from 'axios';
 
 import AuthScreen from './containers/AuthScreen';
@@ -29,8 +30,14 @@ export class LoginAnimation extends Component {
     this.setState({ isLoading: true });
     setTimeout(() => {
       axios.post(VEST_URL + 'api-auth/', form).then(x => {
+        AsyncStorage.setItem('token', x.data.token);
         this.setState({ isLoggedIn: true, isLoading: false })
-      }).catch(x => {
+      }).catch(e => {
+        if (e.response) {
+          console.log(e.response.data);
+        } else {
+          console.log(e.message);
+        }
         this.setState({ isLoggedIn: false, isLoading: false })
       })
     }, 1000);
@@ -38,6 +45,7 @@ export class LoginAnimation extends Component {
 
   _signup (form) {
     this.setState({ isLoading: true })
+    console.log(JSON.stringify(form));
     setTimeout(() => {
       axios.post(VEST_URL + 'users/register/', form).then(x => {
         this.setState({ isLoggedIn: true, isLoading: false })
