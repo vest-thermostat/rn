@@ -1,9 +1,9 @@
 import React, { Component, PropTypes } from 'react'
+import { Container, Content, Form, Item, Input, Label } from 'native-base';
 import { StyleSheet } from 'react-native'
 import { Text, View } from 'react-native-animatable'
 
 import CustomButton from '../../components/CustomButton'
-import CustomTextInput from '../../components/CustomTextInput'
 import metrics from '../../config/metrics'
 
 export default class SignupForm extends Component {
@@ -13,10 +13,24 @@ export default class SignupForm extends Component {
     onLoginLinkPress: PropTypes.func.isRequired
   }
 
-  state = {
-    email: '',
-    password: '',
-    fullName: ''
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      username: '',
+      firstname: '',
+      lastname: '',
+      password: '',
+      confirm_password: '',
+    };
+  }
+
+  handleSubmit () {
+    const { onSignupPress } = this.props;
+    const form = {
+      username, firstname, lastname, password, confirm_password 
+    } = this.state;
+    onSignupPress(form);
   }
 
   hideForm = async () => {
@@ -35,45 +49,47 @@ export default class SignupForm extends Component {
     const isValid = email !== '' && password !== '' && fullName !== ''
     return (
       <View style={styles.container}>
-        <View style={styles.form} ref={(ref) => this.formRef = ref}>
-          <CustomTextInput
-            ref={(ref) => this.emailInputRef = ref}
-            placeholder={'Nom d\'utilisateur'}
-            keyboardType={'email-address'}
-            editable={!isLoading}
-            returnKeyType={'next'}
-            blurOnSubmit={false}
-            withRef={true}
-            onSubmitEditing={() => this.passwordInputRef.focus()}
-            onChangeText={(value) => this.setState({ email: value })}
-            isEnabled={!isLoading}
-          />
-          <CustomTextInput
-            ref={(ref) => this.mobileInputRef = ref}
-            placeholder={'Nom'}
-            editable={!isLoading}
-            returnKeyType={'next'}
-            blurOnSubmit={false}
-            withRef={true}
-            onSubmitEditing={() => this.emailInputRef.focus()}
-            onChangeText={(value) => this.setState({ fullName: value })}
-            isEnabled={!isLoading}
-          />
-          <CustomTextInput
-            ref={(ref) => this.passwordInputRef = ref}
-            placeholder={'Mot de passe'}
-            editable={!isLoading}
-            returnKeyType={'done'}
-            secureTextEntry={true}
-            withRef={true}
-            onChangeText={(value) => this.setState({ password: value })}
-            isEnabled={!isLoading}
-          />
+        <View style={styles.form}>
+          <Item inlineLabel>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Nom d'utilisateur" 
+                onChangeText={username => this.setState({ username })}
+              />
+          </Item>
+          <Item inlineLabel>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Prénom"
+                onChangeText={firstname => this.setState({ firstname })}
+              />
+          </Item>
+          <Item inlineLabel>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Nom"
+                onChangeText={lastname => this.setState({ lastname })}
+              />
+          </Item>
+          <Item inlineLabel last>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Mot de passe"
+                onChangeText={password => this.setState({ password })}
+              />
+          </Item>
+          <Item inlineLabel last>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Confirmez le mot de passe"
+                onChangeText={confirm_password => this.setState({ confirm_password })}
+              />
+          </Item>
         </View>
         <View style={styles.footer}>
           <View ref={(ref) => this.buttonRef = ref} animation={'bounceIn'} duration={600} delay={400}>
             <CustomButton
-              onPress={() => onSignupPress(email, password, fullName)}
+              onPress={this.handleSubmit.bind(this)}
               isEnabled={isValid}
               isLoading={isLoading}
               buttonStyle={styles.createAccountButton}
@@ -102,7 +118,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: metrics.DEVICE_WIDTH * 0.1
   },
   form: {
-    marginTop: 20
+    marginTop: 20,
   },
   footer: {
     height: 100,
