@@ -25,13 +25,10 @@ export class LoginAnimation extends Component {
    * Two login function that waits 1000 ms and then authenticates the user succesfully.
    * In your real app they should be replaced with an API call to you backend.
    */
-  _login (username, password) {
+  _login (form) {
     this.setState({ isLoading: true });
     setTimeout(() => {
-      axios.post(VEST_URL + 'api-auth/', {
-        username: username,
-        password: password,
-      }).then(x => {
+      axios.post(VEST_URL + 'api-auth/', form).then(x => {
         this.setState({ isLoggedIn: true, isLoading: false })
       }).catch(x => {
         this.setState({ isLoggedIn: false, isLoading: false })
@@ -39,19 +36,15 @@ export class LoginAnimation extends Component {
     }, 1000);
   }
 
-  _signup (username, password, fullName) {
+  _signup (form) {
     this.setState({ isLoading: true })
     setTimeout(() => {
-      axios.post(VEST_URL + 'users/register/', {
-        username: username,
-        password: password,
-      }).then(x => {
+      axios.post(VEST_URL + 'users/register/', form).then(x => {
         this.setState({ isLoggedIn: true, isLoading: false })
       }).catch(x => {
         this.setState({ isLoggedIn: false, isLoading: false })
       })
     }, 1000);
-
   }
 
   _logout () {

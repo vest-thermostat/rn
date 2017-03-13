@@ -1,9 +1,9 @@
 import React, { Component, PropTypes } from 'react'
 import { StyleSheet } from 'react-native'
 import { Text, View } from 'react-native-animatable'
+import { Container, Content, Item, Input, Label } from 'native-base';
 
 import CustomButton from '../../components/CustomButton'
-import CustomTextInput from '../../components/CustomTextInput'
 import metrics from '../../config/metrics'
 
 export default class LoginForm extends Component {
@@ -13,10 +13,21 @@ export default class LoginForm extends Component {
     onSignupLinkPress: PropTypes.func.isRequired
   }
 
-  state = {
-    email: '',
-    password: '',
-    fullName: ''
+  constructor (props) {
+    super(props);
+
+    this.state = {
+      username: '',
+      password: '',
+    }
+  }
+
+  handleSubmit () {
+    const { onLoginPress } = this.props;
+    const form = {
+      username, password,
+    } = this.state;
+    onLoginPress(form);
   }
 
   hideForm = async () => {
@@ -30,41 +41,31 @@ export default class LoginForm extends Component {
   }
 
   render () {
-    const { email, password } = this.state
+    const { username, password } = this.state
     const { isLoading, onSignupLinkPress, onLoginPress } = this.props
-    const isValid = email !== '' && password !== ''
+    const isValid = username !== '' && password !== ''
     return (
       <View style={styles.container}>
         <View style={styles.form} ref={(ref) => { this.formRef = ref }}>
-          <CustomTextInput
-            name={'email'}
-            ref={(ref) => this.emailInputRef = ref}
-            placeholder={'Nom d\'utilisateur'}
-            keyboardType={'email-address'}
-            editable={!isLoading}
-            returnKeyType={'next'}
-            blurOnSubmit={false}
-            withRef={true}
-            onSubmitEditing={() => this.passwordInputRef.focus()}
-            onChangeText={(value) => this.setState({ email: value })}
-            isEnabled={!isLoading}
-          />
-          <CustomTextInput
-            name={'password'}
-            ref={(ref) => this.passwordInputRef = ref}
-            placeholder={'Mot de passe'}
-            editable={!isLoading}
-            returnKeyType={'done'}
-            secureTextEntry={true}
-            withRef={true}
-            onChangeText={(value) => this.setState({ password: value })}
-            isEnabled={!isLoading}
-          />
+          <Item inlineLabel>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Nom d'utilisateur" 
+                onChangeText={username => this.setState({ username })}
+              />
+          </Item>
+          <Item inlineLabel last>
+              <Input 
+                style={{color:'#fff'}}
+                placeholder="Mot de passe"
+                onChangeText={password => this.setState({ password })}
+              />
+          </Item>
         </View>
         <View style={styles.footer}>
           <View ref={(ref) => this.buttonRef = ref} animation={'bounceIn'} duration={600} delay={400}>
             <CustomButton
-              onPress={() => onLoginPress(email, password)}
+              onPress={this.handleSubmit.bind(this)}
               isEnabled={isValid}
               isLoading={isLoading}
               buttonStyle={styles.loginButton}
