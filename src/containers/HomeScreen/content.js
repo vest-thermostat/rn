@@ -1,7 +1,9 @@
 import React, { Component, PropTypes } from 'react'
 import { StyleSheet, AsyncStorage } from 'react-native'
 import { Text, View } from 'react-native-animatable';
+import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Content } from 'native-base';
+import { Col, Row, Grid } from 'react-native-easy-grid';
 import Chart from 'react-native-chart';
 import axios from 'axios';
 
@@ -68,14 +70,54 @@ export default class HomeContent extends Component {
     const data = this.createData();
 
     if (data.length) {
+      const last = this.state.data[data.length - 1]
       return (
-        <Chart
-          style={styles.chart}
-          data={data}
-          showGrid={false}
-          showXAxisLabels={false}
-          type="line"
-        />
+        <View>
+          <Chart
+            style={styles.chart}
+            data={data}
+            showGrid={false}
+            showXAxisLabels={false}
+            type="line"
+          />
+          <View style={styles.separatorContainer}/>
+          <Grid>
+            <Col>
+              <AnimatedCircularProgress
+                size={150}
+                width={10}
+                fill={last.temperature}
+                tintColor="#00e0ff"
+                backgroundColor="#3d5875"
+              >
+                {
+                  (fill) => (
+                    <Text style={styles.points}>
+                      { last.temperature } °C
+                    </Text>
+                  )
+                }
+              </AnimatedCircularProgress>
+            </Col>
+            <Col>
+              <AnimatedCircularProgress
+                size={150}
+                width={10}
+                fill={last.humidity}
+                tintColor="#00e0ff"
+                backgroundColor="#3d5875"
+              >
+                {
+                  (fill) => (
+                    <Text style={styles.points}>
+                      { last.humidity } %
+                    </Text>
+                  )
+                }
+              </AnimatedCircularProgress>
+            </Col>
+          </Grid>
+        </View>
       );
     }
   }
@@ -91,7 +133,7 @@ export default class HomeContent extends Component {
         </View>
         <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
           <View style={styles.separatorLine} />                                    
-          <Text style={styles.separatorOr}>{String(last) + ' C'}</Text>
+          <Text style={styles.separatorOr}>{String(last) + ' °C'}</Text>
           <View style={styles.separatorLine} />                                    
         </View>
         <LineGauge 
@@ -110,6 +152,16 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  points: {
+    backgroundColor: 'transparent',
+    position: 'absolute',
+    top: 57,
+    width: 150,
+    textAlign: 'center',
+    color: '#7591af',
+    fontSize: 25,
+    fontWeight: "100"
   },
   button: {
     backgroundColor: '#1976D2',
