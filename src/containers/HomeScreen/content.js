@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import { StyleSheet, AsyncStorage } from 'react-native'
 import { Text, View } from 'react-native-animatable';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { Content, H3 } from 'native-base';
+import { Content, Toast } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import Chart from 'react-native-chart';
 import axios from 'axios';
@@ -24,7 +24,7 @@ export default class HomeContent extends Component {
     this.getLast = this.getLast.bind(this);
   }
 
-  componentDidMount () {
+  httpGet () {
     AsyncStorage.getItem('token', (err, token) => {
       if (err) {
         return console.error(err);
@@ -43,6 +43,43 @@ export default class HomeContent extends Component {
         }
       });
     });
+  }
+
+  componentDidMount () {
+    this.httpGet();
+
+    this.ws = new WebSocket('ws://vest.tperale.be/ws/weather/');
+
+    this.ws.onopen = () => {
+      Toast.show({
+        text: 'Connexion établie',
+        position: 'bottom',
+        buttonText: 'Ok'
+      });
+    };
+
+    this.ws.onmessage = e => {
+        const json = JSON.parse(e.data);
+        if (json.created && json.temperature && json.humidity) {
+            json.created = json.created;
+            let newWeathers = this.state.data.concat([json]);
+            if (this.state.data.length < 100) {
+                newWeathers.splice(0, 1);
+            }
+            this.setState({ data: newWeathers })
+        }
+    };
+    this.ws.onerror = e => Toast.show({
+      text: e.message,
+      position: 'bottom',
+      buttonText: 'Ok'
+    })
+    this.ws.onclose = e => Toast.show({
+      text: `${e.code}: ${e.reason}`,
+      position: 'bottom',
+      buttonText: 'Ok'
+    })
+
   }
 
   getLast () {
