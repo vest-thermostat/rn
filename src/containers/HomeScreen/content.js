@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react'
 import { StyleSheet, AsyncStorage } from 'react-native'
 import { Text, View } from 'react-native-animatable';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { Content } from 'native-base';
+import { Content, H3 } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import Chart from 'react-native-chart';
 import axios from 'axios';
@@ -129,13 +129,19 @@ export default class HomeContent extends Component {
     return (
       <View style={styles.container}>
         <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
+          <View style={styles.separatorLine} />                                    
+          <Text style={styles.separatorOr}>Temperature en ce moment</Text>
+          <View style={styles.separatorLine} />                                    
+        </View>
+        <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
           {this.renderCharts()}
         </View>
         <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
           <View style={styles.separatorLine} />                                    
-          <Text style={styles.separatorOr}>{String(last) + ' °C'}</Text>
+          <Text style={styles.separatorOr}>Changer la temperature</Text>
           <View style={styles.separatorLine} />                                    
         </View>
+        <Text style={styles.separatorOr}>{String(last) + ' °C'}</Text>
         <LineGauge 
           min={15} 
           max={30} 
