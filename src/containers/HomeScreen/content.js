@@ -1,10 +1,13 @@
 import React, { Component, PropTypes } from 'react'
-import { StyleSheet, View, AsyncStorage } from 'react-native'
+import { StyleSheet, AsyncStorage } from 'react-native'
+import { Text, View } from 'react-native-animatable';
+import { Content } from 'native-base';
+import Chart from 'react-native-chart';
 import axios from 'axios';
 
 import LineGauge from 'react-native-line-gauge';
 
-export default class Content extends Component {
+export default class HomeContent extends Component {
   static propTypes = {
   }
 
@@ -19,7 +22,7 @@ export default class Content extends Component {
     this.getLast = this.getLast.bind(this);
   }
 
-  componentWillMount () {
+  componentDidMount () {
     AsyncStorage.getItem('token', (err, token) => {
       if (err) {
         return console.error(err);
@@ -29,7 +32,6 @@ export default class Content extends Component {
           'Authorization': 'Token ' + token,
         },
       }).then(r => {
-        console.info(JSON.stringify(r.data));
         this.setState({ data : r.data.results });
       }).catch(e => {
         if (e.response) {
@@ -47,23 +49,56 @@ export default class Content extends Component {
   }
 
   handleChange (value) {
-    axios.post('http://vest.tperale.be/weather/set/', {
-      temperature: value, 
-    }).then(r => {
-      this.setState({ current: r.data.value });
-    }).catch(e => {
-    
+    console.info(value);
+    // axios.post('http://vest.tperale.be/weather/set/', {
+    //   temperature: value, 
+    // }).then(r => {
+    //   this.setState({ current: r.data.value });
+    // }).catch(e => {
+    // });
+  }
+
+  createData () {
+    return this.state.data.map(x => {
+      return [Date.parse(x.created), x.temperature]
     });
   }
 
+  renderCharts () {
+    const data = this.createData();
+
+    if (data.length) {
+      return (
+        <Chart
+          style={styles.chart}
+          data={data}
+          showGrid={false}
+          showXAxisLabels={false}
+          type="line"
+        />
+      );
+    }
+  }
+
   render () {
-    const last = this.getLast();
+    let last = this.getLast();
+    last = last ? last.current_temperature : 22
+
     return (
       <View style={styles.container}>
+        <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
+          {this.renderCharts()}
+        </View>
+        <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
+          <View style={styles.separatorLine} />                                    
+          <Text style={styles.separatorOr}>{String(last) + ' C'}</Text>
+          <View style={styles.separatorLine} />                                    
+        </View>
         <LineGauge 
           min={15} 
           max={30} 
-          value={last ? last.current_temperature : 22}
+          value={last}
+          onChange={this.handleChange.bind(this)}
         />
       </View>
     )
@@ -83,5 +118,24 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold'
-  }
+  },
+  chart: {
+      width: '90%',
+      height: 100,
+  },
+  separatorContainer: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    marginVertical: 20
+  },
+  separatorLine: {                                                                 
+    flex: 1,
+    borderWidth: StyleSheet.hairlineWidth,
+    height: StyleSheet.hairlineWidth,
+    borderColor: '#9B9FA4'
+  },
+  separatorOr: {
+    color: '#9B9FA4',
+    marginHorizontal: 8
+  },
 })
