@@ -22,6 +22,15 @@ export class LoginAnimation extends Component {
       isAppReady: false // Has the app completed the login animation?
     }
   }
+
+  componentWillMount () {
+    AsyncStorage.getItem('token', (err, res) => {
+      if (res) {
+        this.setState({ isLoggedIn: true, isLoading: false })
+      }
+    })
+  }
+
   /**
    * Two login function that waits 1000 ms and then authenticates the user succesfully.
    * In your real app they should be replaced with an API call to you backend.
@@ -56,7 +65,9 @@ export class LoginAnimation extends Component {
   }
 
   _logout () {
-    this.setState({ isLoggedIn: false, isAppReady: false })
+    AsyncStorage.removeItem('token', () => {
+      this.setState({ isLoggedIn: false, isAppReady: false })
+    });
   }
 
   render () {
