@@ -16,9 +16,8 @@ export default class HomeContent extends Component {
   constructor (props) {
     super(props);
 
-    this.current = 0;
-
     this.state = {
+      current: 0,
       data: [],
     };
 
@@ -38,6 +37,8 @@ export default class HomeContent extends Component {
             'Authorization': 'Token ' + token,
           },
         }).then(r => {
+          const last = this.getLast()
+          this.setState({ current: last ? last.current_temperature : 22 });
           resolve(this.setState({ data : r.data.results }));
         }).catch(e => {
           if (e.response) {
@@ -93,10 +94,10 @@ export default class HomeContent extends Component {
   }
 
   handleChange (value) {
-    console.info(value);
-    this.current = value;
-    setTimeout(((self, value) => {
-      if (self.current != value) {
+    const self = this;
+    this.setState({ current: value });
+    setTimeout(() => {
+      if (self.state.current != value) {
         return;
       }
 
@@ -108,7 +109,7 @@ export default class HomeContent extends Component {
             'Authorization': 'Token ' + token,
           },
         }).then(r => {
-          self.setState({ current: r.data.value });
+          self.setState({ current: r.data.temperature });
         }).catch(e => {
           if (e.response) {
             console.error(e.response.data);
@@ -117,7 +118,7 @@ export default class HomeContent extends Component {
           }
         });
       });
-    })(this, value), 2000);
+    }, 2000);
   }
 
   createData () {
@@ -183,9 +184,6 @@ export default class HomeContent extends Component {
   }
 
   render () {
-    let last = this.getLast();
-    last = last ? last.current_temperature : 22
-
     return (
       <View style={styles.container}>
         <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
@@ -201,11 +199,11 @@ export default class HomeContent extends Component {
           <Text style={styles.separatorOr}>Changer la temperature</Text>
           <View style={styles.separatorLine} />                                    
         </View>
-        <Text style={styles.separatorOr}>{String(last) + ' °C'}</Text>
+        <Text style={styles.separatorOr}>{String(this.state.current) + ' °C'}</Text>
         <LineGauge 
           min={15} 
           max={30} 
-          value={last}
+          value={this.state.current}
           onChange={this.handleChange.bind(this)}
         />
       </View>
