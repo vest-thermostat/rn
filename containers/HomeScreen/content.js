@@ -28,10 +28,6 @@ export default class HomeContent extends Component {
 
   httpGet () {
     return new Promise((resolve) => {
-      if (err) {
-        return console.error(err);
-      }
-
       axios.get('http://vest.tperale.be/weather/own/', {
         headers: {
           'Authorization': 'Token ' + this.props.token,
@@ -59,7 +55,8 @@ export default class HomeContent extends Component {
       Toast.show({
         text: 'Connexion établie',
         position: 'bottom',
-        buttonText: 'Ok'
+        buttonText: 'Ok',
+        duration: 1000,
       });
     };
 
