@@ -18,9 +18,10 @@ export class LoginAnimation extends Component {
     super(props);
 
     this.state = {
-      isLoggedIn: false, // Is the user authenticated?
-      isLoading: false, // Is the user loggingIn/signinUp?
-      isAppReady: false // Has the app completed the login animation?
+      isLoggedIn: false,
+      isLoading: false,
+      isAppReady: false,
+      token: '',
     }
   }
 
@@ -34,7 +35,7 @@ export class LoginAnimation extends Component {
 
     AsyncStorage.getItem('token', (err, res) => {
       if (res) {
-        this.setState({ isLoggedIn: true, isLoading: false })
+        this.setState({ isLoggedIn: true, isLoading: false, token: res });
       }
     })
   }
@@ -48,7 +49,7 @@ export class LoginAnimation extends Component {
     setTimeout(() => {
       axios.post(VEST_URL + 'api-auth/', form).then(x => {
         AsyncStorage.setItem('token', x.data.token);
-        this.setState({ isLoggedIn: true, isLoading: false })
+        this.setState({ isLoggedIn: true, isLoading: false, token: x.data.token })
       }).catch(e => {
         if (e.response) {
           console.log(e.response.data);
@@ -65,7 +66,7 @@ export class LoginAnimation extends Component {
     console.log(JSON.stringify(form));
     setTimeout(() => {
       axios.post(VEST_URL + 'users/register/', form).then(x => {
-        this.setState({ isLoggedIn: true, isLoading: false })
+        this._login(form);
       }).catch(x => {
         this.setState({ isLoggedIn: false, isLoading: false })
       })
@@ -82,6 +83,7 @@ export class LoginAnimation extends Component {
     if (this.state.isAppReady) {
       return (
         <HomeScreen
+          token={this.state.token}
           logout={this._logout.bind(this)}
         />
       )

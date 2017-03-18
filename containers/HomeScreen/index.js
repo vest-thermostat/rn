@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { AsyncStorage } from 'react-native'
 import { NativeRouter, Route } from 'react-router-native'
 import { Location } from 'expo';
@@ -13,7 +13,8 @@ import ScanContent from './scan';
 
 export default class HomeScreen extends Component {
   static propTypes = {
-    logout: React.PropTypes.func,    
+    token: PropTypes.string.isRequired,
+    logout: PropTypes.func,    
   }
 
   closeDrawer = () => {
@@ -24,12 +25,9 @@ export default class HomeScreen extends Component {
     this._drawer._root.open()
   };
 
-  async componentWillMount () {
-    try {
-      this.token = await AsyncStorage.getItem('token')
-    } catch (e) {
-      console.error(e);
-    }
+  constructor (props) {
+    super(props);
+
   }
 
   async componentDidMount () {
@@ -43,7 +41,7 @@ export default class HomeScreen extends Component {
         }
       }, {
         headers: {
-          'Authorization': 'Token ' + this.token,
+          'Authorization': 'Token ' + this.props.token,
         },
       }).then(r => {
         return
@@ -84,8 +82,12 @@ export default class HomeScreen extends Component {
             </Header>
 
             <Content>
-              <Route path="/" component={SettingsContent}/>
-              <Route path="/home" component={HomeContent}/>
+              <Route path="/" render={props => (
+                <SettingsContent {...props} token={this.props.token}/>
+              )}/>
+              <Route path="/home" render={props => (
+                <HomeContent {...props} token={this.props.token}/>
+              )}/>
             </Content>
           </Drawer>
         </Container>
