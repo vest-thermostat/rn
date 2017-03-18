@@ -11,6 +11,7 @@ import LineGauge from 'react-native-line-gauge';
 
 export default class HomeContent extends Component {
   static propTypes = {
+    token: PropTypes.string.isRequired,
   }
 
   constructor (props) {
@@ -27,26 +28,24 @@ export default class HomeContent extends Component {
 
   httpGet () {
     return new Promise((resolve) => {
-      AsyncStorage.getItem('token', (err, token) => {
-        if (err) {
-          return console.error(err);
-        }
+      if (err) {
+        return console.error(err);
+      }
 
-        axios.get('http://vest.tperale.be/weather/own/', {
-          headers: {
-            'Authorization': 'Token ' + token,
-          },
-        }).then(r => {
-          const last = this.getLast()
-          this.setState({ current: last ? last.current_temperature : 22 });
-          resolve(this.setState({ data : r.data.results }));
-        }).catch(e => {
-          if (e.response) {
-            console.error(e.response.data);
-          } else {
-            console.error('Error', e.message);
-          }
-        });
+      axios.get('http://vest.tperale.be/weather/own/', {
+        headers: {
+          'Authorization': 'Token ' + this.props.token,
+        },
+      }).then(r => {
+        const last = this.getLast()
+        this.setState({ current: last ? last.current_temperature : 22 });
+        resolve(this.setState({ data : r.data.results }));
+      }).catch(e => {
+        if (e.response) {
+          console.error(e.response.data);
+        } else {
+          console.error('Error', e.message);
+        }
       });
     });
   }
