@@ -1,0 +1,13 @@
+ {
+   "name": "VEST",
+   "icon": "https://github.com/vest-thermostat/rn/blob/master/images/logo.png?raw=true",
+   "version": "1.0.0",
+   "slug": "vest",
+   "sdkVersion": "15.0.0",
+   "ios": {
+     "bundleIdentifier": "org.thermostat.vest"
+   },
+   "android": {
+     "package": "org.thermostat.vest"
+   }
+ }
