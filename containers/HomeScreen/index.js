@@ -3,7 +3,20 @@ import { AsyncStorage } from 'react-native'
 import { NativeRouter, Route } from 'react-router-native'
 import { Location } from 'expo';
 import axios from 'axios';
-import { Container, Header, Title, Content, Drawer, Button, Left, Right, Body, Icon } from 'native-base';
+import { 
+  Container, 
+  Header, 
+  Title, 
+  Content, 
+  Drawer, 
+  Button, 
+  Left, 
+  Right, 
+  Body, 
+  Icon,
+  Tabs,
+  Tab,
+} from 'native-base';
 
 import SideBar from '../../components/Sidebar';
 
@@ -82,12 +95,14 @@ export default class HomeScreen extends Component {
             </Header>
 
             <Content>
-              <Route path="/" render={props => (
-                <SettingsContent {...props} token={this.props.token}/>
-              )}/>
-              <Route path="/home" render={props => (
-                <HomeContent {...props} token={this.props.token}/>
-              )}/>
+              <Tabs>
+                <Tab heading="Dashboard">
+                  <HomeContent token={this.props.token}/>
+                </Tab>
+                <Tab heading="Option">
+                  <SettingsContent token={this.props.token}/>
+                </Tab>
+              </Tabs>
             </Content>
           </Drawer>
         </Container>
