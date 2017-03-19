@@ -41,12 +41,29 @@ export default class HomeScreen extends Component {
   constructor (props) {
     super(props);
 
+    this.state = {
+      current: 'HOME',
+    };
+    this.handlePageChange = this.handlePageChange.bind(this);
   }
 
   async componentDidMount () {
     Location.watchPositionAsync({
+      enableHighAccuracy: true,
       timeInterval: 300000,
     }, (coords) =>{
+
+      console.log({
+        "position": {
+          "type": "Point",
+          "coordinates": [coords.longitude, coords.latitude],
+        }
+      });
+
+      if (!(coords.longitude || coords.latitude)) {
+        return; 
+      }
+
       axios.post('http://vest.tperale.be/location/', {
         "position": {
           "type": "Point",
@@ -68,45 +85,51 @@ export default class HomeScreen extends Component {
     });
   }
 
+  handlePageChange (page) {
+    this.setState({ current: page });
+  }
+
+  renderPage () {
+    switch (this.state.current) {
+      case 'HOME':
+        return (<HomeContent token={this.props.token}/>);
+      case 'SETTINGS':
+        return (<SettingsContent token={this.props.token}/>);
+    }
+    return null; 
+  }
+
   render() {
     return (
-      <NativeRouter>
-        <Container>
-          <Drawer
-            ref={ref => { this._drawer = ref; }}
-            content={
-                <SideBar
-                    navigator={this._navigator}
-                    logout={this.props.logout}
-                />
-            }
-            onClose={this.closeDrawer.bind(this)}
-          >
-            <Header>
-              <Left>
-                <Button onPress={this.openDrawer.bind(this)} transparent>
-                    <Icon name='menu' />
-                </Button>
-              </Left>
-              <Body>
-                <Title>VEST</Title>
-              </Body>
-              <Right />
-            </Header>
+      <Container>
+        <Drawer
+          ref={ref => { this._drawer = ref; }}
+          content={
+              <SideBar
+                  navigator={this._navigator}
+                  changePage={this.handlePageChange}
+                  logout={this.props.logout}
+              />
+          }
+          onClose={this.closeDrawer.bind(this)}
+        >
+          <Header>
+            <Left>
+              <Button onPress={this.openDrawer.bind(this)} transparent>
+                  <Icon name='menu' />
+              </Button>
+            </Left>
+            <Body>
+              <Title>VEST</Title>
+            </Body>
+            <Right />
+          </Header>
 
-            <Content>
-              <Tabs>
-                <Tab heading="Dashboard">
-                  <HomeContent token={this.props.token}/>
-                </Tab>
-                <Tab heading="Option">
-                  <SettingsContent token={this.props.token}/>
-                </Tab>
-              </Tabs>
-            </Content>
-          </Drawer>
-        </Container>
-      </NativeRouter>
+          <Content>
+            {this.renderPage()}
+          </Content>
+        </Drawer>
+      </Container>
     );
   }
 }

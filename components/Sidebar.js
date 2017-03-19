@@ -1,11 +1,10 @@
 import React, { Component, StyleSheet } from 'react';
 import { connect } from 'react-redux';
 import { Content, Text, List, ListItem } from 'native-base';
-import { Link } from 'react-router-native'
-
 
 export default class SideBar extends Component {
   static propTypes = {
+    changePage: React.PropTypes.func.isRequired,
     logout: React.PropTypes.func,
   }
 
@@ -22,12 +21,11 @@ export default class SideBar extends Component {
 
     return (
       <Content style={styles.sidebar}>
-        <ListItem button>
-          <Link
-            to="/"
-          >
-            <Text>Accueil</Text>
-          </Link>
+        <ListItem button onPress={() => this.props.changePage('HOME')}>
+          <Text>Accueil</Text>
+        </ListItem>
+        <ListItem button onPress={() => this.props.changePage('SETTINGS')}>
+          <Text>Préferences</Text>
         </ListItem>
         <ListItem button onPress={this.props.logout} >
           <Text>Se déconnecter</Text>
