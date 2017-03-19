@@ -33,9 +33,13 @@ export default class HomeContent extends Component {
           'Authorization': 'Token ' + this.props.token,
         },
       }).then(r => {
-        const last = this.getLast()
-        this.setState({ current: last ? last.current_temperature : 22 });
-        resolve(this.setState({ data : r.data.results }));
+        if (r.data.results.length) {
+          const data = r.data.results.reverse();
+          const current = data[data.length - 1].current_temperature;
+          resolve(this.setState({ current: current, data : data }));
+        } else {
+          resolve(this.setState({ current: 22, data : [] }));
+        }
       }).catch(e => {
         if (e.response) {
           console.error(e.response.data);
@@ -91,6 +95,7 @@ export default class HomeContent extends Component {
 
   handleChange (value) {
     const self = this;
+    console.info(value);
     this.setState({ current: value });
     setTimeout(() => {
       if (self.state.current != value) {
