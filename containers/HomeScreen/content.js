@@ -4,6 +4,7 @@ import { Text, View } from 'react-native-animatable';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
 import { Content, Toast } from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
+import { Notifications } from 'expo';
 import Chart from 'react-native-chart';
 import axios from 'axios';
 
@@ -102,22 +103,20 @@ export default class HomeContent extends Component {
         return;
       }
 
-      AsyncStorage.getItem('token', (err, token) => {
-        axios.post('http://vest.tperale.be/weather/set/', {
-          temperature: value, 
-        }, {
-          headers: {
-            'Authorization': 'Token ' + token,
-          },
-        }).then(r => {
-          self.setState({ current: r.data.temperature });
-        }).catch(e => {
-          if (e.response) {
-            console.error(e.response.data);
-          } else {
-            console.error('Error', e.message);
-          }
-        });
+      axios.post('http://vest.tperale.be/weather/set/', {
+        temperature: value, 
+      }, {
+        headers: {
+          'Authorization': 'Token ' + this.props.token,
+        },
+      }).then(r => {
+        self.setState({ current: r.data.temperature });
+      }).catch(e => {
+        if (e.response) {
+          console.error(e.response.data);
+        } else {
+          console.error('Error', e.message);
+        }
       });
     }, 2000);
   }
@@ -185,6 +184,10 @@ export default class HomeContent extends Component {
   }
 
   render () {
+    Notifications.scheduleLocalNotificationAsync({
+      title: 
+    },new Date().getTime() + 100);
+
     return (
       <View style={styles.container}>
         <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
