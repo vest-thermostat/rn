@@ -206,7 +206,6 @@ export default class HomeContent extends Component {
       title: "VEST - Thermostat",
       body: this.state.state && this.state.current >= this.state.data[data.length - 1].temperature ?  "Votre thermostat est allumé." : "Votre thermostat est éteint.",
       android: {
-        sticky: true,
         icon: "https://github.com/vest-thermostat/rn/blob/master/images/logo.png?raw=true",
       },
     });
