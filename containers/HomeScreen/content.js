@@ -10,6 +10,9 @@ import axios from 'axios';
 
 import LineGauge from 'react-native-line-gauge';
 
+const VEST_URL = 'vest.tperale.be/';
+// const VEST_URL = 'http://192.168.0.219:8000/';
+
 export default class HomeContent extends Component {
   static propTypes = {
     token: PropTypes.string.isRequired,
@@ -19,6 +22,7 @@ export default class HomeContent extends Component {
     super(props);
 
     this.state = {
+      state: false,
       current: 0,
       data: [],
     };
@@ -29,7 +33,7 @@ export default class HomeContent extends Component {
 
   httpGet () {
     return new Promise((resolve) => {
-      axios.get('http://vest.tperale.be/weather/own/', {
+      axios.get('http://' + VEST_URL + 'weather/own/', {
         headers: {
           'Authorization': 'Token ' + this.props.token,
         },
@@ -37,9 +41,17 @@ export default class HomeContent extends Component {
         if (r.data.results.length) {
           const data = r.data.results.reverse();
           const current = data[data.length - 1].current_temperature;
-          resolve(this.setState({ current: current, data : data }));
+          resolve(this.setState({ 
+            state: r.data.thermostat_state,
+            current: current, 
+            data : data 
+          }));
         } else {
-          resolve(this.setState({ current: 22, data : [] }));
+          resolve(this.setState({ 
+            state: false,
+            current: 22, 
+            data : [] 
+          }));
         }
       }).catch(e => {
         if (e.response) {
@@ -54,7 +66,7 @@ export default class HomeContent extends Component {
   componentDidMount () {
     this.httpGet();
 
-    this.ws = new WebSocket('ws://vest.tperale.be/ws/weather/');
+    this.ws = new WebSocket('ws://' + VEST_URL + 'ws/weather/');
 
     this.ws.onopen = () => {
       Toast.show({
@@ -66,15 +78,20 @@ export default class HomeContent extends Component {
     };
 
     this.ws.onmessage = e => {
-        const json = JSON.parse(e.data);
-        if (json.created && json.temperature && json.humidity) {
-            json.created = json.created;
-            let newWeathers = this.state.data.concat([json]);
-            if (this.state.data.length < 100) {
-                newWeathers.splice(0, 1);
-            }
-            this.setState({ data: newWeathers })
+      console.log(JSON.stringify(e.data));
+      const json = JSON.parse(e.data);
+      if (json.created && json.temperature && json.humidity) {
+        json.created = json.created;
+        let newWeathers = this.state.data.concat([json]);
+        if (this.state.data.length < 100) {
+          newWeathers.splice(0, 1);
         }
+        this.setState({ 
+          state: json.thermostat_state,
+          current: json.current_temperature, 
+          data: newWeathers 
+        });
+      }
     };
     this.ws.onerror = e => Toast.show({
       text: e.message,
@@ -103,7 +120,7 @@ export default class HomeContent extends Component {
         return;
       }
 
-      axios.post('http://vest.tperale.be/weather/set/', {
+      axios.post('http://' + VEST_URL +  'weather/set/', {
         temperature: value, 
       }, {
         headers: {
@@ -183,11 +200,20 @@ export default class HomeContent extends Component {
     }
   }
 
-  render () {
-    Notifications.scheduleLocalNotificationAsync({
-      title: 
-    },new Date().getTime() + 100);
+  async renderNotifications () {
+    await Notifications.dismissAllNotificationsAsync();
+    Notifications.presentLocalNotificationAsync({
+      title: "VEST - Thermostat",
+      body: this.state.state && this.state.current >= this.state.data[data.length - 1].temperature ?  "Votre thermostat est allumé." : "Votre thermostat est éteint.",
+      android: {
+        sticky: true,
+        icon: "https://github.com/vest-thermostat/rn/blob/master/images/logo.png?raw=true",
+      },
+    });
+  }
 
+  render () {
+    this.renderNotifications();
     return (
       <View style={styles.container}>
         <View style={styles.separatorContainer} animation={'zoomIn'} delay={300} duration={300}>
